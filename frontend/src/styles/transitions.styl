@@ -1,0 +1,43 @@
+.router-enter-active, .router-leave-active {
+  transition: opacity 150ms
+}
+.router-enter, .router-leave-active {
+  opacity: 0
+}
+
+
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 250ms
+}
+.fade-enter, .fade-leave-active {
+  opacity: 0
+}
+
+
+// transition for example 1
+.slide-fade-enter-active {
+  transition: all .3s ease;
+}
+.slide-fade-leave-active {
+  transition: all .2s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-fade-enter, .slide-fade-leave-to {
+  transform: translateY(10px);
+  opacity: 0;
+}
+
+
+
+// transition for example 2
+.slide-x-fade-enter-active {
+  transition: all .3s ease;
+}
+.slide-x-fade-leave-active {
+  transition: all .2s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-x-fade-enter, .slide-x-fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
+}
+

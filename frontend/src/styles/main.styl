@@ -1,0 +1,13 @@
+@import 'transitions'
+
+
+body, html, #app
+  height: 100%
+
+// validation animation
+.validation-feedback
+  opacity 0
+  transition opacity ease-in .3s
+
+  &.invalid-feedback
+    opacity 1
