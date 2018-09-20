@@ -1,12 +1,12 @@
 @component('mail::message')
-# Последний шаг
+# Last step
 
-Нажмите кнопку чтобы продолжить.
+Click the button to continue.
 
 @component('mail::button', ['url' => $resetUrlWithToken])
-    Продолжить
+    Continue
 @endcomponent
 
-Спасибо,<br>
+Thank you,<br>
 {{ config('app.name') }}
 @endcomponent

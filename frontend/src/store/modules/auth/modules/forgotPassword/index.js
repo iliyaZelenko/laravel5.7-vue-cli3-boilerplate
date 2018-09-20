@@ -1,27 +1,35 @@
-import { USER, USER_LOGGED_IN, USER_LOGGED_OUT, TOKEN, REFRESH_TOKEN_EXPIRED } from './mutation-types'
+import { vp } from '@/tools/helpers'
+import router from '@/router'
+// import { } from './mutation-types'
 
 export default {
   namespaced: true,
-  state: {
+  state: {},
+  mutations: {},
+  actions: {
+    async sendEmail ({ dispatch, commit }, email) {
+      let { href } = router.resolve({
+        name: 'reset-password',
+        params: {
+          token: '<token>',
+          email: '<email>'
+        }
+      })
+      // нужно для генерации ссылки в почту
+      let port = location.port ? (':' + location.port) : ''
+      let resetUrl = location.protocol + '//' + location.hostname + port + href
 
-  },
-  mutations: {
-    [USER] (state, user) {
-      // state.user = user
-      //
-      // localStorage.setItem(localStorageKeys.user, JSON.stringify(user))
-      //
-      // return user
+      const { message } = await vp.$post('auth/forgot-password-email', { email, resetUrl })
+
+      vp.$notify.success(message)
     },
-    [TOKEN] (state, token) {
-      // console.log('token_global', token)
-      // state.token = (token && token.accessToken) || ''
-      // state.tokenExpiresIn = +(token && token.expiresIn) || ''
-      // state.refreshTokenExpiresIn = +(token && token.refreshTokenExpiresIn) || ''
-      //
-      // localStorage.setItem(localStorageKeys.token, state.token)
-      // localStorage.setItem(localStorageKeys.tokenExpiresIn, state.tokenExpiresIn)
-      // localStorage.setItem(localStorageKeys.refreshTokenExpiresIn, state.refreshTokenExpiresIn)
+    async resetPassword ({ dispatch, commit }, data) {
+      const loggedInData = await vp.$post('auth/forgot-password-reset', data)
+      loggedInData.showMsg = false
+
+      await dispatch('auth/loggedIn', loggedInData, { root: true })
+
+      vp.$notify.success('Password has been reset successfully!')
     }
   }
 }

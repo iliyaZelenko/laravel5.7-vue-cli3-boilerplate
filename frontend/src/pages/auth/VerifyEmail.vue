@@ -10,19 +10,16 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
   async mounted () {
     const { queryURL } = this.$route.query
 
-    try {
-      const result = await this.$post(queryURL)
-
-      console.log(result)
-    } catch ({ response: { status } }) {
-      if (status === 401) {
-        this.$router.push({ name: 'signin' })
-      }
-    }
+    await this.verify(queryURL)
+  },
+  methods: {
+    ...mapActions('auth/emailVerification', ['verify'])
   }
 }
 </script>

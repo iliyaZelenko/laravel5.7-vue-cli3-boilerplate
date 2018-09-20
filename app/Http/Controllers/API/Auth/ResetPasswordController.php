@@ -7,10 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\PasswordReset;
-use App\Http\Requests\Auth\ForgotPasswordResetRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\User;
 use UnexpectedValueException;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use App\Traits\AuthTokenResponses;
 
 class ResetPasswordController extends BaseController
 {
@@ -57,17 +58,15 @@ class ResetPasswordController extends BaseController
     const INVALID_TOKEN = 'passwords.token';
 
 
-    use ResetsPasswords;
+    use ResetsPasswords, AuthTokenResponses;
 
-
-    // TODO авторизация после сброса пароля
     /**
      * Reset the given user's password.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param ResetPasswordRequest $request
+     * @return array|\Illuminate\Http\JsonResponse
      */
-    public function reset(ForgotPasswordResetRequest $request)
+    public function reset(ResetPasswordRequest $request)
     {
         $credentials = $this->credentials($request);
 
@@ -81,7 +80,7 @@ class ResetPasswordController extends BaseController
         } else {
             switch ($response) {
                 case static::INVALID_USER:
-                    return $this->sendError(trans('passwords.user', ['input' => 'почте(она должна быть в вашем url, вероятно вы меняли ссылку)']), 404);
+                    return $this->sendError(trans('passwords.user'), 404);
                 case static::INVALID_PASSWORD:
                     return $this->sendError(trans('passwords.password'), 422);
                 case static::INVALID_TOKEN:
@@ -93,26 +92,8 @@ class ResetPasswordController extends BaseController
         $this->broker()->getRepository()->delete($user);
 
 
-        return $this->sendResponse(NULL, trans('passwords.reset'));
-
-        // Что делает reset: https://github.com/laravel/framework/blob/5.5/src/Illuminate/Auth/Passwords/PasswordBroker.php#L83
-        // Передает $credentials для валидации, работы с токеном, возвращает ответ в виде константы класса Illuminate\Contracts\Auth\PasswordBroker
-        // $response = $this->broker()->reset($credentials, function ($user, $password) {
-        //     // если все правильно то выполнится этот колбэк
-        //     $this->resetPassword($user, $password);
-        // });
-
-
-        // switch ($response) {
-        //     case Password::PASSWORD_RESET:
-        //         return $this->sendResponse(NULL, trans('passwords.reset'));
-        //     case Password::INVALID_USER:
-        //         return $this->sendError(trans('passwords.user', ['input' => 'почте(она должна быть в вашем url, вероятно вы меняли ссылку)']), 404);
-        //     case Password::INVALID_PASSWORD:
-        //         return $this->sendError(trans('passwords.password'), 422);
-        //     case Password::INVALID_TOKEN:
-        //         return $this->sendError(trans('passwords.token'), 422);
-        // }
+//        return $this->sendResponse(NULL, trans('passwords.reset'));
+        return $this->tokenDataAndUser($user);
     }
 
 
@@ -138,7 +119,7 @@ class ResetPasswordController extends BaseController
 
 
     /**
-     * Пользователь по указанным данным
+     * User by credentials
      *
      * @param  array  $credentials
      * @return \Illuminate\Contracts\Auth\CanResetPassword|null
@@ -148,10 +129,7 @@ class ResetPasswordController extends BaseController
     public function getUser(array $credentials)
     {
         // $passwordHashed = Hash::make($credentials['password']);
-        $user = User::whereHas('emails', function ($query) use ($credentials) {
-            $query->where('email', $credentials['email']);
-        })->first();
-        $user->setEmailForResetPassword($credentials['email']);
+        $user = User::where('email', $credentials['email'])->first();
 
         if ($user && !$user instanceof CanResetPasswordContract) {
             throw new UnexpectedValueException('User must implement CanResetPassword interface.');

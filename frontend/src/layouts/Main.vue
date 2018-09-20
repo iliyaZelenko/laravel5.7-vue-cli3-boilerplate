@@ -118,9 +118,14 @@
 
           <button
             class="btn btn-secondary btn-sm float-right ml-2"
-            @click="logout"
+            @click="$actionWithLoading(logout, 'loadingLogout')"
           >
-            Logout
+            <span v-if="loadingLogout">
+              Loading...
+            </span>
+            <span v-else>
+              Logout
+            </span>
           </button>
         </template>
       </div>
@@ -161,6 +166,7 @@
 
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
+// import { actionWithLoading } from '@/tools/helpers'
 
 export default {
   name: 'MainLayout',
@@ -171,6 +177,7 @@ export default {
       password: 'password'
     },
     loading: false,
+    loadingLogout: false,
     resendLoading: false
   }),
   computed: {
@@ -179,27 +186,25 @@ export default {
   },
   methods: {
     async submit () {
-      this.loading = true
-      try {
-        await this.signin(this.form)
-      } catch (e) {
-        // console.log(e)
-      }
-      this.loading = false
+      await this.$actionWithLoading(this.signin, 'loading', this.form)
+
+      // this.loading = true
+      // try {
+      //   await this.signin(this.form)
+      // } finally {
+      //   this.loading = false
+      // }
     },
     async resendEmailVerification () {
-      this.resendLoading = true
+      await this.$actionWithLoading(this.resend, 'resendLoading')
 
-      try {
-        const responseMsg = await this.resend()
-
-        this.$notify.success(responseMsg)
-      } catch (e) {
-        console.log(e)
-        // this.$notify.error(response)
-      } finally {
-        this.resendLoading = false
-      }
+      // this.resendLoading = true
+      //
+      // try {
+      //   await this.resend()
+      // } finally {
+      //   this.resendLoading = false
+      // }
     },
     ...mapActions('auth', ['signin', 'logout']),
     ...mapActions('auth/emailVerification', ['resend'])

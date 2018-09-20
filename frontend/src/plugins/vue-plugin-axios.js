@@ -13,7 +13,8 @@ Vue.use(VueAxios, {
   config: {
     baseURL: baseApiURL,
     headers: {
-      'X-Requested-With': 'XMLHttpRequest' // so laravel will understand that this is ajax $request->ajax()
+      // so laravel will understand that this is ajax $request->ajax()
+      'X-Requested-With': 'XMLHttpRequest'
     }
   },
   interceptors: {
@@ -33,6 +34,8 @@ Vue.use(VueAxios, {
 
       if (response) { // backend error
         showServerError(response)
+
+        // if 401
       } else if (message) { // network error
         vp.$notify.error(message)
       }

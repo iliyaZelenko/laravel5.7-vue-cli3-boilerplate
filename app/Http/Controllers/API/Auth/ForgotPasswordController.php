@@ -27,40 +27,28 @@ class ForgotPasswordController extends BaseController
     /**
      * Send a reset link to the given user.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function sendResetLinkEmail(ForgotPasswordEmailRequest $request)
     {
-        $resetUrl = $request->input('resetUrl');
-        $credentials = array_filter($request->only(['email', 'nickname']));
+        $email = $request->email;
+        $resetUrlForReplace = urldecode($request->resetUrl);
 
-        if (isset($credentials['email'])) {
-            // $user = User::whereHas('emails', function ($query) use ($credentials) {
-            //     $query->where('email', $credentials['email']);
-            // })->first();
-            $email = Email::ofEmail($credentials['email'])->first();
-            $user = $email->user()->first(); // ->first()
-        } else if (isset($credentials['nickname'])) {
-            $user = User::where('nickname', $credentials['nickname'])->first();
-            // TODO правильнее конечно возможно было сделать выбор между публичными адресами и главным, но пока так
-            if ($user) { $email = $user->mainEmail; }
-        }
-
+        $user = User::where('email', $email)->first();
 
         if (!$user) {
-            $input = isset($credentials['email']) ? 'почте' : 'нику';
-            return $this->sendError(trans('passwords.user', ['input' => $input]), 404);
+            return $this->sendError(trans('passwords.user'), 404);
         }
-        $emailForMail = $email->email;
-        // ставит через какую почту сбрасывать пароль
-        $user->setEmailForResetPassword($emailForMail);
+
         $token = $this->broker()->createToken($user);
-        $resetUrlWithToken = "$resetUrl/$token/{$emailForMail}";
+//        $resetUrlWithToken = "$resetUrl$token/$email"; // $resetUrl have / on end
+
+        $resetUrl = str_replace(['<token>', '<email>'], [$token, $email], $resetUrlForReplace);
 
         Mail::to([
-            'email' => $user->emails()->ofEmail($emailForMail)->first()
-        ])->send(new ForgotPassword($resetUrlWithToken));
+            'email' => $email
+        ])->send(new ForgotPassword($resetUrl));
 
         return $this->sendResponse(NULL, trans('passwords.sent'));
     }

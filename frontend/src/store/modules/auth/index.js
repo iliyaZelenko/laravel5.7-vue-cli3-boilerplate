@@ -59,23 +59,19 @@ const module = {
       if (store.state.route.meta.guest) {
         router.push({ name: 'profile' })
       }
-      vp.$notify.success('logged in successfully!')
+
       setTimeoutTokenRefresh(state)
     },
     [USER_LOGGED_OUT] (state, manually) {
-      if (manually) {
-        vp.$notify.success('Logged out successfully.')
-        stopTokenRefresh()
-      }
-      // else {
-      // if route requires auth, then redirect
+      stopTokenRefresh()
+
+      // If route requires auth or guest, then redirect
       if (store.state.route.meta.auth) {
         router.push({ name: 'signin' })
       }
       if (store.state.route.meta.guest) {
         router.push('/')
       }
-      // }
     }
   },
   actions: {
@@ -86,13 +82,20 @@ const module = {
     },
     async signup ({ dispatch, commit }, form) {
       const loggedInData = await vp.$post('auth/signup', form)
+      loggedInData.showMsg = false
 
       await dispatch('loggedIn', loggedInData)
+
+      vp.$notify.success('Registered successfully!')
     },
-    async loggedIn ({ dispatch, commit }, { user, tokenInfo }) {
+    async loggedIn ({ dispatch, commit }, { user, tokenInfo, showMsg = true }) {
       commit(TOKEN, tokenInfo)
       commit(USER, user)
       commit(USER_LOGGED_IN)
+
+      if (showMsg) {
+        vp.$notify.success('logged in successfully!')
+      }
     },
     async getUser ({ commit }) {
       const { user } = await vp.$get('auth/user')
@@ -102,17 +105,14 @@ const module = {
       await vp.$post('auth/logout')
       await dispatch('setNullTokenAndUser')
       commit(USER_LOGGED_OUT, true)
+      vp.$notify.success('Logged out successfully.')
     },
     async refresh ({ dispatch, commit, state }) {
       const tokenInfo = await vp.$post('auth/refresh')
 
-      // setTimeoutTokenRefresh()
-
       if (tokenInfo.status === 'tokenAlreadyRefreshed') return
       if (tokenInfo.status === 'refreshTokenExpired') {
         await dispatch('refreshTokenExpired')
-        // refresh token expired
-        // showRefreshTokenExpiredMessage()
 
         return
       }
@@ -121,8 +121,6 @@ const module = {
     },
     async refreshTokenExpired ({ dispatch, commit }) {
       await dispatch('setNullTokenAndUser')
-      // commit(TOKEN, null)
-      // commit(USER, null)
       commit(REFRESH_TOKEN_EXPIRED)
       commit(USER_LOGGED_OUT, false)
     },
@@ -132,6 +130,10 @@ const module = {
     async setNullTokenAndUser ({ commit }) {
       commit(TOKEN, null)
       commit(USER, null)
+    },
+    // save user from server here after editing
+    async setUser ({ commit }, user) {
+      commit(USER, user)
     },
     async init ({ state }) {
       setTimeoutTokenRefresh(state)
@@ -156,59 +158,8 @@ const module = {
 // export module
 export default module
 
-// async function checkTokenExpired () {
-//   console.log('checkTokenExpired')
-//   // console.log('needRefresh: ' + module.getters.tokenNeedToRefresh(module.state))
-//   // if (!module.state.token && module.state.user) {
-//   //   store.dispatch('auth/setNullUser')
-//   // }
-//
-//   // if (module.getters.tokenNeedToRefresh(module.state)) {
-//   try {
-//     // clearInterval(intervalCheckTokenExpired)
-//     await store.dispatch('auth/refresh')
-//   } catch (e) {}
-//
-//   // intervalCheckTokenExpired = setInterval(checkTokenExpired, checkTokenEvery)
-//   // }
-// }
-
-// function checkTokenExpired (state) {
-//   const { token, refreshTokenExpiresIn } = state
-//
-//   if (!token) {
-//     return
-//   }
-
-// let secondsFromNow = Date.now() / 1000
-// let secondsToShowPlsSigninMessage = refreshTokenExpiresIn - secondsFromNow - refreshTokenSecondBeforeExpired
-//
-// let ms = secondsToShowPlsSigninMessage > 0 ? secondsToShowPlsSigninMessage * 1000 : 0
-// clearTimeout(showRefreshTokenExpiredMessagereTimeoutId)
-//
-// console.log('ставлю смотритель рефреш токена')
-// showRefreshTokenExpiredMessagereTimeoutId = setTimeout(async () => {
-//   // showRefreshTokenExpiredMessage()
-//   clearTimeout(refreshTimeoutId)
-//
-//   // await store.dispatch(moduleNamespace + 'setNullTokenAndUser')
-//   store.commit(moduleNamespace + REFRESH_TOKEN_EXPIRED)
-//   store.commit(moduleNamespace + TOKEN, null)
-//   store.commit(moduleNamespace + USER, null)
-// }, ms)
-
-// setTimeoutTokenRefresh(state)
-// only if refresh token not expired
-// let ms2 = secondsToRefresh > 0 ? secondsToRefresh * 1000 : 0
-// if (ms2 <= ms && ms) { // if token expired before refresh token expired and if refresh token not expired
-//   refreshTimeoutId = setTimeout(async () => {
-//     await store.dispatch(moduleNamespace + 'refresh')
-//   }, ms2)
-// }
-// }
-
 function setTimeoutTokenRefresh ({ token, tokenExpiresIn }) {
-  if (!token) { // || refreshTimeoutId
+  if (!token) {
     return
   }
 

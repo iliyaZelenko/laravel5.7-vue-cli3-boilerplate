@@ -97,19 +97,16 @@ export default {
     },
     loading: false
   }),
-  computed: {
-    // ...mapState('auth', ['user']),
-    // ...mapGetters('auth', ['loggedIn'])
-  },
   methods: {
     async submit () {
-      this.loading = true
-      try {
-        await this.signin(this.form)
-      } catch (e) {
-        // console.log(e)
+      if (await this.$formValidator.validate(this.form)) {
+        this.loading = true
+        try {
+          await this.signin(this.form)
+        } finally {
+          this.loading = false
+        }
       }
-      this.loading = false
     },
     ...mapActions('auth', ['signin'])
   }

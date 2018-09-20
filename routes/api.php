@@ -20,12 +20,11 @@ Route::namespace('API')->group(function () {
 });
 
 Route::get('test', function () {
-    return response()->json([
-        'ajax' => request()->ajax(),
-        'wantsJson' => request()->wantsJson()
-    ]);
+    return [
+        'test' => 'test'
+    ];
 });
 
-Route::fallback(function(){
+Route::fallback(function() {
     return response()->json(['message' => 'Not Found!'], 404);
 });

@@ -1,12 +1,12 @@
 @component('mail::message')
-# Спасибо за регестрацию
+# Thank you for registering
 
-Нажмите чтобы подтвердить электронный адрес.
+Click to confirm the email address.
 
 @component('mail::button', ['url' => $emailVerifyUrl])
-    Подтвердить
+    Verify
 @endcomponent
 
-Спасибо,<br>
+Thank you,<br>
 {{ config('app.name') }}
 @endcomponent

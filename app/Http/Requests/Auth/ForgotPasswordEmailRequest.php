@@ -23,14 +23,8 @@ class ForgotPasswordEmailRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [];
-        if (request()->email) {
-            $rules['email'] = 'required|' . config('validation.email');
-        }
-        if (request()->nickname) {
-            $rules['nickname'] = 'required|' . config('validation.nickname');;
-        }
-
-        return $rules;
+        return [
+            'email' => 'required|' . config('validation.email')
+        ];
     }
 }

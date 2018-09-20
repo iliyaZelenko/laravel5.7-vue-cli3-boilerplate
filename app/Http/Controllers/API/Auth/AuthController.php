@@ -6,18 +6,15 @@ use Illuminate\Http\Request;
 use App\User;
 use App\Http\Requests\Auth\SignupRequest;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Traits\PassportToken;
+use App\Traits\AuthTokenResponses;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
-use App\Http\Resources\UserResource;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
 
 class AuthController extends BaseController
 {
-    use PassportToken, ThrottlesLogins;
+    use AuthTokenResponses, ThrottlesLogins;
     /**
      * Регистрация
      */
@@ -29,15 +26,16 @@ class AuthController extends BaseController
             'password' => bcrypt($request->password)
         ]);
 
-        auth()->login($user);
         event(new Registered($user));
 
-        return $this->tokenDataAndUser();
+        return $this->tokenDataAndUser($user);
 //        return $this->sendResponse(NULL, 'Successfully sign up!', 201);
     }
 
     /**
-     * signup and return token
+     * sign up and return token
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function signin(LoginRequest $request)
     {
@@ -49,11 +47,13 @@ class AuthController extends BaseController
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
-            return $this->sendLockoutResponse($request);
+            // this can throw a ValidationException
+            $this->sendLockoutResponse($request);
+
         }
 
         $error = null;
-        // user by email or password
+        // user by email or name(example)
         if ((isset($credentials['email']) && $user = User::ofEmail($credentials['email'])->first())
         || (isset($credentials['name']) && $user = User::ofName($credentials['name'])->first())
         ) {
@@ -77,20 +77,15 @@ class AuthController extends BaseController
 
         // login attempts = 0
         $this->clearLoginAttempts($request);
-        auth()->login($user);
-        event(new Login('api', $user, false)); // false - its remember
 
-        // token response
-        return $this->tokenDataAndUser();
-        // "access_token": "...",
-        // "expires_in": datetime timestamp,
-        // "user": user object
+        // token and user response
+        return $this->tokenDataAndUser($user);
     }
 
     /**
      * Logout user (Revoke the token)
      *
-     * @return [string] message
+     * @return \Illuminate\Http\JsonResponse [string] message
      */
     public function logout()
     {
@@ -104,7 +99,8 @@ class AuthController extends BaseController
     /**
      * Get the authenticated User
      *
-     * @return [json] user object
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse [json] user object
      */
     public function user(Request $request)
     {
@@ -117,6 +113,7 @@ class AuthController extends BaseController
      * Refresh a token.
      *
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Tymon\JWTAuth\Exceptions\JWTException
      */
     public function refresh()
     {
@@ -150,36 +147,5 @@ class AuthController extends BaseController
     public function username()
     {
         return 'email';
-    }
-
-    protected function tokenData($token)
-    {
-        // setToken $token
-        $payload = auth()->setToken($token)->getPayload()->toArray();
-        // Возврашает ответ с токеном
-        return [
-            'accessToken' => $token, // $this->getBearerTokenByUser($user);
-            'expiresIn' => $payload['exp'],
-            'issuedAt' => $payload['iat'],
-            'refreshTokenExpiresIn' => Carbon::createFromTimestamp($payload['iat'])
-                ->addMinutes(config('jwt.refresh_ttl'))
-                ->getTimestamp() // now()->addMinutes(config('jwt.refresh_ttl'))->getTimestamp()
-//            'token_type' => 'Bearer'
-        ];
-    }
-
-    protected function tokenDataAndUser()
-    {
-        $token = auth()->fromUser(auth()->user());
-
-        return [
-            'tokenInfo' => $this->tokenData($token),
-            'user' => $this->userData()
-        ];
-    }
-
-    protected function userData()
-    {
-        return new UserResource(auth()->user());
     }
 }

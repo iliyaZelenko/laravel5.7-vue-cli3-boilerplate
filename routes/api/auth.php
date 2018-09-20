@@ -5,8 +5,8 @@ Route::group(['namespace' => 'Auth', 'prefix' => 'auth'], function () {
         Route::post('signin', 'AuthController@signin'); // , [ 'as' => 'login', 'uses' =>
         Route::post('signup', 'AuthController@signup');
 
-        Route::post('reset-password-email', 'ForgotPasswordController@sendResetLinkEmail');
-        Route::post('reset-password', 'ResetPasswordController@reset');
+        Route::post('forgot-password-email', 'ForgotPasswordController@sendResetLinkEmail');
+        Route::post('forgot-password-reset', 'ResetPasswordController@reset');
     });
 //    , 'auth:api' 'jwt.refresh', jwt.auth
     Route::middleware(['auth:api'])->group(function () {

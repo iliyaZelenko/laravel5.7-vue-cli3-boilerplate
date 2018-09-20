@@ -14,15 +14,8 @@ class BaseController extends Controller
      */
     public function sendResponse($data  = NULL, $message = NULL, $code = 200)
     {
-        // $response = [
-        //     'success' => true
-        // ];
-
         $response = $data;
 
-        // if ($data) {
-        //     $response['data'] = $data;
-        // }
         if ($message) {
             $response['message'] = $message;
         }
@@ -43,11 +36,6 @@ class BaseController extends Controller
             'message' => $error
         ];
 
-      // if(!empty($errorMessages)){
-      //   $response['data'] = $errorMessages;
-      // }
-      // $response = Json::response($data, $message)
-
-      return response()->json($response, $code);
+        return response()->json($response, $code);
     }
 }

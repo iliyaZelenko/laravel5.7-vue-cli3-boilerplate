@@ -17,7 +17,11 @@ export default [
       },
       ...auth,
       ...profile,
-      ...other
+      ...other,
+      {
+        path: '*',
+        component: () => import(/* webpackChunkName: "page404" */ '@/pages/404.vue')
+      }
     ]
   }
 ]

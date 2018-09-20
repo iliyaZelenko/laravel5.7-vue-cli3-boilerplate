@@ -26,7 +26,7 @@ export default [
   {
     name: 'verify-email',
     path: '/verify-email',
-    component: () => import(/* webpackChunkName: "signin" */ '@/pages/auth/VerifyEmail.vue'),
+    component: () => import(/* webpackChunkName: "signin" */ '@/pages/auth/VerifyEmail.vue')
     // meta: { guest: true }
   }
 ]

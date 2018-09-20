@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\VerifiesEmails;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Verified;
+use App\Http\Resources\UserResource;
 
 class VerificationController extends Controller
 {
@@ -28,12 +29,16 @@ class VerificationController extends Controller
      */
     public function verify(Request $request)
     {
-        if ($request->route('id') == $request->user()->getKey() &&
-            $request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
+        $user = $request->user();
+        if ($request->route('id') == $user->getKey() &&
+            $user->markEmailAsVerified()) {
+            event(new Verified($user));
         }
 
-        return response()->json('Email verified!');
+        return response()->json([
+            'message' => 'Email verified!',
+            'user' => new UserResource($user)
+        ]);
 //        return redirect($this->redirectPath());
     }
 
