@@ -4,75 +4,51 @@ namespace App\Http\Controllers\API\Profile;
 use App\Http\Controllers\API\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\PasswordReset;
-use App\Traits\EmailVerification;
-use App\Traits\Avatar;
+//use Illuminate\Auth\Events\PasswordReset;
+//use App\Traits\Avatar;
 use App\Http\Requests\Profile\Current\SetPasswordRequest;
 use App\Http\Requests\Profile\Current\SetUserDataRequest;
-use App\Http\Requests\Profile\Current\SaveEmailRequest;
-use App\Http\Requests\Profile\Current\SavePhoneRequest;
 use App\Http\Requests\Profile\Current\SaveAvatarRequest;
-use Image;
-use File;
 use App\Http\Resources\UserResource;
-use App\Email;
-use App\Phone;
-use App\UserPasswordHistroy;
 
 class ProfileController extends BaseController
 {
-    use EmailVerification, Avatar;
+//    use Avatar;
 
     /**
-     * Меняет пароль currentPassword newPassword
+     * Change password
+     * @param SetPasswordRequest $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function setPassword(SetPasswordRequest $request)
     {
-        $user = auth()->user();
-
-        if ($request->password) {
-            $user->password = Hash::make($request->password);
-            $user->save();
-
-            return new UserResource($user);
-        }
+        $user = $request->user();
 
         $currentPassword = $request->currentPassword;
         $newPassword = $request->newPassword;
 
-        $passwordHistory = $user->passwordsHistory()->get();
-        $oldSamePassword = null;
-
-        // приходится сравнивать вот так, но всеравно никто не меняет пароль по сто раз
-        $passwordHistory->each(function ($item) use ($newPassword, &$oldSamePassword) {
-            if (Hash::check($newPassword, $item->password)) {
-                $oldSamePassword = $item;
-                return false;
-            }
-        });
-
-        if ($oldSamePassword) {
-            return $this->sendError("У Вас был такой пароль!(добавляли в $oldSamePassword->created_at)", 422);
+        if (Hash::check($newPassword, $user->password)) {
+            return $this->sendError('You had such a password!', 422);
         }
 
-        if (Hash::check($currentPassword, $user->password)) {
-            $hashedNewPassword = Hash::make($newPassword);
-
-            $user->password = $hashedNewPassword;
-            $user->save();
-
-            $user->passwordsHistory()->save(new UserPasswordHistroy([
-                'password' => $hashedNewPassword
-            ]));
-        } else {
-            return $this->sendError('Не верный текущий пароль', 422);
+        if (!Hash::check($currentPassword, $user->password)) {
+            return $this->sendError('Invalid current password', 422);
         }
 
-        return new UserResource($user);
+        $hashedNewPassword = Hash::make($newPassword);
+        $user->password = $hashedNewPassword;
+        $user->save();
+
+        return $this->sendResponse([
+            'user' => new UserResource($user),
+            'message' => 'Password changed successfully!'
+        ]);
     }
 
     /**
-     * Меняет пароль
+     * Set user data
+     * @param SetUserDataRequest $request
+     * @return UserResource
      */
     public function setUserData(SetUserDataRequest $request)
     {
@@ -93,8 +69,10 @@ class ProfileController extends BaseController
         return new UserResource($user);
     }
 
-    /** image
-     * Сохраняет аватарку
+    /**
+     * Save avatar
+     * @param SaveAvatarRequest $request
+     * @return UserResource
      */
     public function setAvatar(SaveAvatarRequest $request) {
         $user = auth()->user();

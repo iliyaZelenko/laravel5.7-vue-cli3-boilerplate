@@ -103,7 +103,7 @@
 
           <span class="ml-1">
             or
-            <router-link to="/signup">Sign up</router-link>
+            <router-link :to="{ name: 'signup' }">Sign up</router-link>
           </span>
         </form>
         <template v-else>
@@ -111,7 +111,7 @@
 
           <button
             class="btn btn-primary btn-sm float-right ml-2"
-            @click="$router.push('/profile')"
+            @click="$router.push({ name: 'profile' })"
           >
             Profile
           </button>
@@ -131,27 +131,10 @@
       </div>
     </nav>
 
-    <div
-      v-show="$auth.user && !$auth.user.hasVerifiedEmail"
-      class="alert alert-primary mx-auto mt-3"
-      role="alert"
-    >
-      Please, verify your email. We sent a message there.
-      <button
-        class="btn btn-primary btn-sm ml-2"
-        @click="resendEmailVerification"
-      >
-        <span v-if="resendLoading">
-          Loading...
-        </span>
-        <span v-else>
-          Resend
-        </span>
-      </button>
-    </div>
+    <verify-email-alert/>
 
     <div
-      class="container d-flex align-items-center justify-content-center"
+      class="container d-flex align-items-center justify-content-center pt-5"
       style="height: 100%;"
     >
       <transition
@@ -166,19 +149,19 @@
 
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
-// import { actionWithLoading } from '@/tools/helpers'
+import VerifyEmailAlert from '@/components/layout/main/VerifyEmail.vue'
 
 export default {
   name: 'MainLayout',
+  components: { VerifyEmailAlert },
   data: () => ({
-    appName: process.env.VUE_APP_SECRET,
+    appName: process.env.VUE_APP_TITLE,
     form: {
       email: 'test@test.com',
       password: 'password'
     },
     loading: false,
-    loadingLogout: false,
-    resendLoading: false
+    loadingLogout: false
   }),
   computed: {
     ...mapState('auth', ['user']),
@@ -195,19 +178,7 @@ export default {
       //   this.loading = false
       // }
     },
-    async resendEmailVerification () {
-      await this.$actionWithLoading(this.resend, 'resendLoading')
-
-      // this.resendLoading = true
-      //
-      // try {
-      //   await this.resend()
-      // } finally {
-      //   this.resendLoading = false
-      // }
-    },
-    ...mapActions('auth', ['signin', 'logout']),
-    ...mapActions('auth/emailVerification', ['resend'])
+    ...mapActions('auth', ['signin', 'logout'])
   }
 }
 </script>

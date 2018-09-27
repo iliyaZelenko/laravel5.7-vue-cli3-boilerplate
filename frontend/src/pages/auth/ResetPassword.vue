@@ -11,12 +11,8 @@
       @keydown.enter="submit"
     >
       <div class="form-group">
-        <label for="signinInputPassword">
-          Password:
-        </label>
         <input
           v-validate="$formValidator.rules.password"
-          id="signinInputPassword"
           v-model="form.password"
           :class="{
             'form-control': true,

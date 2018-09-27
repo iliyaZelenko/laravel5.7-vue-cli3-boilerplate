@@ -12,7 +12,7 @@ export default [
     children: [
       {
         name: 'home',
-        path: '/',
+        path: '',
         component: Home
       },
       ...auth,

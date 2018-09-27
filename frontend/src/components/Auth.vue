@@ -1,22 +1,22 @@
 <template>
-  <div class="w-50 mx-auto clearfix px-5 mt-5 mb-4">
+  <div class="w-50 mx-auto clearfix px-5 mb-4">
     <div class="d-flex justify-content-center mb-3">
       <router-link
-        to="/profile"
+        :to="{ name: 'profile' }"
         class="btn btn-secondary"
       >
         Profile(protected route)
       </router-link>
 
       <router-link
-        to="/signup"
+        :to="{ name: 'signup' }"
         class="btn btn-secondary ml-2"
       >
         Sign up(only guests route)
       </router-link>
 
       <router-link
-        to="/signin"
+        :to="{ name: 'signin' }"
         class="btn btn-secondary ml-2"
       >
         Sign in(only guests route)
@@ -45,9 +45,9 @@
 
     <br>
 
-    <b>Token expiration:</b> <span v-html="tokenExpiresInFormated || '–'" />
+    <b>Token expiration:</b> <span v-html="tokenExpiresInFormated || ' –'" />
     <br>
-    <b>Refresh token expiration:</b> <span v-html="refreshTokenExpiresInFormated || '–'" />
+    <b>Refresh token expiration:</b> <span v-html="refreshTokenExpiresInFormated || ' –'" />
   </div>
 </template>
 

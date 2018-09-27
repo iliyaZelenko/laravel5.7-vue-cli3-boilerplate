@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import axios from 'axios'
-// import VueAxios from 'vue-plugin-axios'
-import VueAxios from '@/../../../vue-plugin-axios/src/'
+import VueAxios from 'vue-plugin-axios'
+// import VueAxios from '@/../../../vue-plugin-axios/src/'
 import store from '@/store'
 import { vp } from '@/tools/helpers'
 import { showServerError } from '@/tools/validator'
 
-const baseApiURL = 'http://localhost:8000/api/'
+const baseApiURL = process.env.VUE_APP_BACKEND + '/api/' // 'http://localhost:8000/api/'
 
 Vue.use(VueAxios, {
   axios,

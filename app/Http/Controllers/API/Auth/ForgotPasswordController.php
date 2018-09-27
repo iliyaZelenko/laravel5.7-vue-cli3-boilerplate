@@ -42,8 +42,6 @@ class ForgotPasswordController extends BaseController
         }
 
         $token = $this->broker()->createToken($user);
-//        $resetUrlWithToken = "$resetUrl$token/$email"; // $resetUrl have / on end
-
         $resetUrl = str_replace(['<token>', '<email>'], [$token, $email], $resetUrlForReplace);
 
         Mail::to([

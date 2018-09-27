@@ -13,7 +13,7 @@ class ForgotPassword extends Mailable
 
     public $resetUrlWithToken;
 
-    public $subject = 'Сброс пароля';
+    public $subject = 'Password reset';
     /**
      * Create a new message instance.
      *
