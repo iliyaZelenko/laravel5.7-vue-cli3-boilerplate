@@ -28,7 +28,7 @@
 
 1. `git clone https://github.com/iliyaZelenko/laravel5.7-vue-cli3-boilerplate.git`
 2. `composer install `
-3. Edit `.env` to set your database connection details and `FRONTEND_URL`, `APP_URL`
+3. Copy `.env.example` to `.env` and set your database connection details and `FRONTEND_URL`, `APP_URL`, `JWT_SECRET`
 4. `php artisan migrate:fresh --seed` make tables and users
 5. `cd frontend`
 6. Edit `.env` to set your `VUE_APP_BACKEND`(backend url)
