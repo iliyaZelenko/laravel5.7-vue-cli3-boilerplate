@@ -27,12 +27,15 @@
 ## Installation
 
 1. `git clone https://github.com/iliyaZelenko/laravel5.7-vue-cli3-boilerplate.git`
-2. `composer install `
-3. Copy `.env.example` to `.env` and set your database connection details and `FRONTEND_URL`, `APP_URL`, `JWT_SECRET`
-4. `php artisan migrate:fresh --seed` make tables and users
-5. `cd frontend`
-6. Edit `.env` to set your `VUE_APP_BACKEND`(backend url)
-7. `yarn` or `npm install`
+2. `composer install`
+3. Copy `.env.example` to `.env` and set your database connection details and `FRONTEND_URL`, `APP_URL`
+4. Generate the Laravel app key: `php artisan key:generate`
+5. To make the JWT authorization work: `php artisan jwt:secret` (it generates `JWT_SECRET` in `.env`)
+6. If you want mail verification to work, then configure `MAIL_USERNAME` and `MAIL_PASSWORD` in `.env`
+7. `php artisan migrate:fresh --seed` make tables and users
+8. `cd frontend`
+9. Edit `.env` to set your `VUE_APP_BACKEND`(backend url)
+10. `yarn` or `npm install`
 
 Frontend is in the folder **frontend**, the following commands for this folder:
 
