@@ -21,7 +21,7 @@
 - Bootstrap 4
 - [vue-notifications](https://github.com/se-panfilov/vue-notifications#readme) (with [iziToast](https://github.com/dolce/iziToast)) There is no attachment to a particular library!
 - [Vee-validate](https://github.com/baianat/vee-validate) validation
-- Awesome vue-plugin-axios
+- Package integrating [axios](https://github.com/axios/axios) in vue: vue-plugin-axios
 
 
 ## Installation
@@ -37,7 +37,7 @@
 9. Copy [.env.example](https://github.com/iliyaZelenko/laravel5.7-vue-cli3-boilerplate/blob/master/frontend/.env.example) to `.env` and set your `VUE_APP_BACKEND` (backend url)
 10. `yarn` or `npm install`
 
-Create an "issue" if you have questions, I will help.
+Create an [issue](https://github.com/iliyaZelenko/laravel5.7-vue-cli3-boilerplate/issues/new) if you have questions, I will help.
 
 ## Usage
 
