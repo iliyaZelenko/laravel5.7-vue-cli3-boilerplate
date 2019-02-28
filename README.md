@@ -34,8 +34,12 @@
 6. If you want mail verification to work, then configure `MAIL_USERNAME` and `MAIL_PASSWORD` in `.env`
 7. `php artisan migrate:fresh --seed` make tables and users
 8. `cd frontend`
-9. Edit `.env` to set your `VUE_APP_BACKEND`(backend url)
+9. Copy [.env.example](https://github.com/iliyaZelenko/laravel5.7-vue-cli3-boilerplate/blob/master/frontend/.env.example) to `.env` and set your `VUE_APP_BACKEND` (backend url)
 10. `yarn` or `npm install`
+
+Create an "issue" if you have questions, I will help.
+
+## Usage
 
 Frontend is in the folder **frontend**, the following commands for this folder:
 
@@ -72,7 +76,7 @@ yarn test:e2e // OR npm run test:e2e
 Also i have vuetify and nuxt + vuetify version! 
 Let me know if you are interested in this project.
 
-### TODO (support me with a star)
+## TODO (support me with a star)
 - i18n
 - avatar
 - select timezone and display date/time for user timezone
